@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="text-center mb-4">
+            Quiz Result
+        </h2>
+
+        <hr>
+
+        <h5>Participant Information</h5>
+
+        <p>
+            <strong>Name:</strong>
+            {{ participant_name }}
+        </p>
+
+        {% if participant %}
+            <p>
+                <strong>Class:</strong>
+                {{ participant.class_name }}
+            </p>
+
+            <p>
+                <strong>Age:</strong>
+                {{ participant.age }}
+            </p>
+
+            <p>
+                <strong>Gender:</strong>
+                {{ participant.gender }}
+            </p>
+
+            <p>
+                <strong>Institution:</strong>
+                {{ participant.institution }}
+            </p>
+        {% endif %}
+
+        <hr>
+
+        <h5>Quiz Information</h5>
+
+        <p>
+            <strong>Quiz:</strong>
+            {{ quiz.title }}
+        </p>
+
+        <p>
+            <strong>Total Questions:</strong>
+            {{ total }}
+        </p>
+
+        <h3 class="text-center mt-3">
+            Your Score: {{ score }} / {{ total }}
+        </h3>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'dashboard' %}"
+               class="btn btn-primary">
+                Back to Dashboard
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

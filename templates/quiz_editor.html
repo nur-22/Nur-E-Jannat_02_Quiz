@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5 mb-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4">
+            {% if quiz.pk %}
+                Edit Quiz
+            {% else %}
+                Create New Quiz
+            {% endif %}
+        </h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <h4>Quiz Information</h4>
+
+            {{ quiz_form.as_p }}
+
+            <hr>
+
+            <h4 class="mb-3">Quiz Questions</h4>
+
+            {{ question_formset.management_form }}
+
+            <div id="question-container">
+
+                {% for question_form in question_formset %}
+
+                    <div class="card p-3 mb-3 question-card">
+
+                        <h5 class="question-heading">
+                            Question {{ forloop.counter }}
+                        </h5>
+
+                        {{ question_form.id }}
+
+                        <div class="mb-3">
+                            <label>Question:</label>
+                            {{ question_form.question }}
+                            {{ question_form.question.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Option 1:</label>
+                            {{ question_form.option1 }}
+                            {{ question_form.option1.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Option 2:</label>
+                            {{ question_form.option2 }}
+                            {{ question_form.option2.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Option 3:</label>
+                            {{ question_form.option3 }}
+                            {{ question_form.option3.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Option 4:</label>
+                            {{ question_form.option4 }}
+                            {{ question_form.option4.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Correct Answer:</label>
+                            {{ question_form.correct_option }}
+                            {{ question_form.correct_option.errors }}
+                        </div>
+
+                        <div style="display:none;">
+                            {{ question_form.DELETE }}
+                        </div>
+
+                        <div>
+                            <button type="button" class="btn btn-danger remove-question">
+                                Delete Question
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+
+            <!-- Empty form template for adding questions -->
+
+            <template id="empty-question-form">
+
+                <div class="card p-3 mb-3 question-card">
+
+                    <h5 class="question-heading">New Question</h5>
+
+                    {{ question_formset.empty_form.id }}
+
+                    <div class="mb-3">
+                        <label>Question:</label>
+                        {{ question_formset.empty_form.question }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Option 1:</label>
+                        {{ question_formset.empty_form.option1 }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Option 2:</label>
+                        {{ question_formset.empty_form.option2 }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Option 3:</label>
+                        {{ question_formset.empty_form.option3 }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Option 4:</label>
+                        {{ question_formset.empty_form.option4 }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Correct Answer:</label>
+                        {{ question_formset.empty_form.correct_option }}
+                    </div>
+
+                    <div style="display:none;">
+                        {{ question_formset.empty_form.DELETE }}
+                    </div>
+
+                    <button type="button" class="btn btn-danger remove-question">
+                        Delete Question
+                    </button>
+                </div>
+            </template>
+            <button
+                type="button"
+                id="add-question"
+                class="btn btn-success mb-3">
+                + Add New Question
+            </button>
+            <hr>
+            <button type="submit" class="btn btn-primary">Save Quiz</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const container = document.getElementById("question-container");
+    const addButton = document.getElementById("add-question");
+    const template = document.getElementById("empty-question-form");
+    const totalForms = document.getElementById("id_questions-TOTAL_FORMS");
+
+
+    // UPDATE QUESTION NUMBERS
+    function updateQuestionNumbers() {
+        
+        const cards = container.querySelectorAll(".question-card");
+        let number = 1;
+        cards.forEach(function (card) {
+
+            if (card.style.display !== "none") {
+                card.querySelector(".question-heading").textContent = "Question " + number;
+                number++;
+            }
+        });
+    }
+
+
+    // ADD NEW QUESTION
+    addButton.addEventListener("click", function () {
+
+        const newIndex = parseInt(totalForms.value);
+        let html = template.innerHTML;
+        html = html.replace(/__prefix__/g, newIndex);
+        container.insertAdjacentHTML("beforeend", html);
+        totalForms.value = newIndex + 1;
+        updateQuestionNumbers();
+    });
+
+
+    // DELETE QUESTION
+    container.addEventListener("click", function (event) {
+
+        if (event.target.classList.contains("remove-question")) {
+
+            const card = event.target.closest(".question-card");
+            const deleteCheckbox = card.querySelector('input[name$="-DELETE"]');
+
+            // Mark the form for deletion.
+            deleteCheckbox.checked = true;
+
+            // Hide it without removing it from the formset.
+            card.style.display = "none";
+            updateQuestionNumbers();
+        }
+    });
+
+    updateQuestionNumbers();
+});
+</script>
+
+{% endblock %}
